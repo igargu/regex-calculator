@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
+var parser = require("../rules");
 
 router.post("/login", async (req, res) => {
   const token = jwt.sign(
@@ -29,13 +30,11 @@ router.post("/regex", async (req, res) => {
     if (err) {
       res.send(401, "Unauthorized request");
     }
-    res.send(200, {
-      message:
-        "We cannot perform this operation\n" +
-        "You will be connected to an external server\n" +
-        "Please keep waiting...",
+    let expression = "1+2";
+    let result = parser.parse(`Evaluar[${expression}];`);
+    res.status(200).send({
+      message: result,
     });
-    // Enviamos regex a PHP
   });
 });
 

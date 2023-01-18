@@ -5,6 +5,7 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "install": "^0.13.0",
+    "jison": "^0.4.18",
     "jsonwebtoken": "^9.0.0",
     "node-fetch": "^2.6.6",
     "ws": "^8.12.0"
