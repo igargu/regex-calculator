@@ -84,11 +84,11 @@ performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* actio
 var $0 = $$.length - 1;
 switch (yystate) {
 case 4:
- console.error('Este es un error sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column); 
+ return 'Este es un error sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column; 
 break;
 case 5:
 
-		yyprint('El valor de la expresión es: ' + $$[$0-2]);
+		return 'El valor de la expresión es: ' + $$[$0-2];
 	
 break;
 case 6:
@@ -721,7 +721,7 @@ case 13:return 16;
 break;
 case 14:return 5;
 break;
-case 15: console.error('Este es un error léxico: ' + yy_.yytext + ', en la linea: ' + yy_.yylloc.first_line + ', en la columna: ' + yy_.yylloc.first_column); 
+case 15:return 'Este es un error léxico: ' + yy_.yytext + ', en la linea: ' + yy_.yylloc.first_line + ', en la columna: ' + yy_.yylloc.first_column;
 break;
 }
 },

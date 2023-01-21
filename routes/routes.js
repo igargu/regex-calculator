@@ -7,7 +7,7 @@ var parser = require("../rules");
 router.post("/login", async (req, res) => {
   const token = jwt.sign(
     {
-      name: "pepe",
+      name: req.body.user,
     },
     process.env.PRIVATE_KEY
   );
@@ -30,10 +30,9 @@ router.post("/regex", async (req, res) => {
     if (err) {
       res.send(401, "Unauthorized request");
     }
-    let expression = "1+2";
-    let result = parser.parse(`Evaluar[${expression}];`);
+    let expression = "(4*3)/2";
     res.status(200).send({
-      message: result,
+      message: parser.parse(`Evaluar[${expression}];`),
     });
   });
 });

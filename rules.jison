@@ -28,7 +28,7 @@
 
 <<EOF>>				return 'EOF';
 
-.					{ console.error('Este es un error léxico: ' + yytext + ', en la linea: ' + yylloc.first_line + ', en la columna: ' + yylloc.first_column); }
+.					return 'Este es un error léxico: ' + yytext + ', en la linea: ' + yylloc.first_line + ', en la columna: ' + yylloc.first_column;
 /lex
 
 
@@ -50,12 +50,12 @@ ini
 instrucciones
 	: instruccion instrucciones
 	| instruccion
-	| error { console.error('Este es un error sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column); }
+	| error { return 'Este es un error sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column; }
 ;
 
 instruccion
 	: REVALUAR CORIZQ expresion CORDER PTCOMA {
-		console.log('El valor de la expresión es: ' + $3);
+		return 'El valor de la expresión es: ' + $3;
 	}
 ;
 
