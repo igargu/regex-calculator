@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>regex-calculator</title>
+    <meta charset="UTF-8" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <nav class="navbar sticky-top navbar-dark bg-dark justify-content-between">
+      <a class="navbar-brand" href="">regex calculator</a>
+    </nav>
+    <div class="container">
+      <div id="loginContainer" class="login-container">
+        <p id="alertContainerLogin" class="alert-container"></p>
+        <div class="fields-container">
+          <div class="form-group">
+            <label for="inUser">User</label>
+            <input type="text" class="form-control" id="inUser" />
+          </div>
+          <div class="form-group form-group-pass">
+            <label for="inPass">Password</label>
+            <input type="password" class="form-control" id="inPass" />
+          </div>
+          <button id="btLogin" class="btn btn-success btn-lg btn-block">
+            Login
+          </button>
+        </div>
+      </div>
+      <div id="regexContainer" class="regex-container display-none">
+        <p id="alertContainerRegex" class="alert-container"></p>
+        <div class="fields-container">
+          <div class="form-group form-group-pass">
+            <label for="inRegex">Regex</label>
+            <input type="text" class="form-control" id="inRegex" />
+          </div>
+          <button id="btRegex" class="btn btn-success btn-lg btn-block">
+            Regex
+          </button>
+          <textarea id="taRegex" disabled></textarea>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="./js/index.js"></script>
+  </body>
+</html>

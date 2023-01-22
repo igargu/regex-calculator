@@ -1,0 +1,97 @@
+@import url("https://fonts.googleapis.com/css2?family=Fira+Mono&display=swap");
+
+html,
+body {
+  font-family: "Fira Mono", monospace;
+}
+
+.navbar-brand {
+  text-transform: uppercase;
+}
+
+.container {
+  height: 800px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+
+.login-container,
+.regex-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+
+  border-radius: 2%;
+
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
+}
+
+.alert-container {
+  width: 100%;
+  height: 100%;
+
+  text-align: center;
+  background-color: crimson;
+  color: white;
+}
+
+.fields-container {
+  padding: 50px;
+}
+
+.regex-container .fields-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.regex-container .form-group {
+  display: flex;
+  align-items: center;
+}
+
+.regex-container .form-group label {
+  margin: 0;
+}
+
+.login-container input,
+.login-container button {
+  width: 300px;
+  height: 50px;
+}
+
+.regex-container input {
+  width: 100;
+  height: 50px;
+
+  margin-left: 16px;
+}
+
+.regex-container button {
+  width: 100%;
+  height: 50px;
+}
+
+.regex-container textarea {
+  width: 405px;
+  height: 200px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  margin-top: 50px;
+  padding: 6px 12px 6px 12px;
+
+  resize: none;
+  font-family: "Fira Mono", monospace;
+}
+
+.display-none {
+  display: none;
+}
