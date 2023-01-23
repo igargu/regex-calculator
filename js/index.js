@@ -1,3 +1,5 @@
+const { connect } = require("mongoose");
+
 let loginContainer = document.getElementById("loginContainer");
 let inUser = document.getElementById("inUser");
 let inPass = document.getElementById("inPass");
@@ -14,6 +16,10 @@ let alertContainerRegex = document.getElementById("alertContainerRegex");
 let token = "";
 let cont = 0;
 let exp = 0;
+
+let socket = null;
+let state = false;
+let handler = null;
 
 btLogin.addEventListener("click", () => {
   let user = inUser.value;
@@ -34,12 +40,11 @@ btLogin.addEventListener("click", () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.data != null) {
-          token = data.data;
-          loginContainer.classList.toggle("display-none");
-          regexContainer.classList.toggle("display-none");
-          inUser.value = "";
-          inPass.value = "";
-          exp = Date.now();
+          // Abrir conexión con el websocket
+          connectToWebSocket({
+            ip: "localhost",
+            port: "3000",
+          });
         } else {
           alertContainerLogin.innerHTML = "Usuario o contraseña no válidos";
         }
@@ -93,3 +98,33 @@ btRegex.addEventListener("click", () => {
     exp = 0;
   }
 });
+
+function connectToWebSocket(config) {
+  this.socket = new WebSocket("ws://" + config.ip + ":" + config.port);
+
+  token = data.data;
+  loginContainer.classList.toggle("display-none");
+  regexContainer.classList.toggle("display-none");
+  inUser.value = "";
+  inPass.value = "";
+  exp = Date.now();
+
+  this.socket.onmessage = (event) => {
+    this.handler.newMsg(JSON.parse(event.data));
+  };
+
+  this.socket.onclose = () => {
+    this.state = false;
+  };
+
+  this.socket.onerror = () => {
+    this.state = false;
+  };
+}
+
+function sendMsgThroughWebSocket(content) {
+  const msg = {
+    content: content,
+  };
+  this.socket.send(JSON.stringify(msg));
+}
