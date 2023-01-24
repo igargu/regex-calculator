@@ -55,18 +55,14 @@ wss.on("connection", function connection(ws) {
       console.log("Unauthorized request");
     }
     jwt.verify(auth_token, process.env.PRIVATE_KEY, (err, payload) => {
-      // Añadir regex a la cola
       queue.enqueue(JSON.parse(msg).content);
-      // Esperar un tiempo aleatorio
       setTimeout(() => {
-        // Coger la primera regex y enviarla
         let regex = queue.peek();
         ws.send(
           JSON.stringify({
             result: regex + " : " + parser.parse(`Evaluar[${regex}];`),
           })
         );
-        // Eliminar regex de la cola
         queue.dequeue();
       }, Math.floor(Math.random() * 10000) + 1);
     });

@@ -41,8 +41,12 @@ body {
   color: white;
 }
 
-.fields-container {
+.login-container .fields-container {
   padding: 50px;
+}
+
+.regex-container .fields-container {
+  padding: 50px 100px 150px 100px;
 }
 
 .regex-container .fields-container {
@@ -77,6 +81,17 @@ body {
   height: 50px;
 }
 
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+
+  margin-top: 150px;
+
+  position: relative;
+}
+
 .regex-container textarea {
   width: 405px;
   height: 200px;
@@ -85,11 +100,12 @@ body {
   justify-content: center;
   align-items: center;
 
-  margin-top: 50px;
   padding: 6px 12px 6px 12px;
 
   resize: none;
   font-family: "Fira Mono", monospace;
+
+  position: absolute;
 }
 
 .display-none {
@@ -105,6 +121,8 @@ body {
   position: relative;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
+
+  z-index: 9999;
 }
 .loader::after {
   content: "";
@@ -126,4 +144,8 @@ body {
   100% {
     transform: rotate(360deg);
   }
+}
+
+u {
+  cursor: pointer;
 }

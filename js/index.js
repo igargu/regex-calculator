@@ -11,7 +11,7 @@ let taRegex = document.getElementById("taRegex");
 let alertContainerLogin = document.getElementById("alertContainerLogin");
 let alertContainerRegex = document.getElementById("alertContainerRegex");
 
-let loader = document.getElementById("loader");
+let loader = document.getElementById("spLoader");
 
 let token = "";
 let cont = 0;
@@ -58,36 +58,27 @@ btLogin.addEventListener("click", () => {
 });
 
 btRegex.addEventListener("click", () => {
-  if (cont < 5) {
-    if (Date.now() >= exp + 600000) {
-      alertContainerLogin.innerHTML = "Se acabo el tiempo, vuelve a loguearte";
-      loginContainer.classList.toggle("display-none");
-      regexContainer.classList.toggle("display-none");
-      inRegex.value = "";
-      taRegex.value = "";
-      cont = 0;
-      exp = 0;
-    } else {
-      let regex = inRegex.value;
-      if (regex == "") {
-        alertContainerRegex.innerHTML = "Introduce una regex";
-      } else {
-        alertContainerRegex.innerHTML = "";
-        sendMsgThroughWebSocket(regex);
-        inRegex.value = "";
-        cont++;
-      }
-    }
-  } else {
-    btRegex.classList.toggle("display-none");
-    alertContainerRegex.innerHTML =
-      "Gastaste tus consultas, vuelve a loguearte";
-    //loginContainer.classList.toggle("display-none");
-    //regexContainer.classList.toggle("display-none");
+  if (Date.now() >= exp + 600000) {
+    alertContainerLogin.innerHTML = "Se acabo el tiempo, vuelve a loguearte";
+    loginContainer.classList.toggle("display-none");
+    regexContainer.classList.toggle("display-none");
     inRegex.value = "";
-    //taRegex.value = "";
+    taRegex.value = "";
     cont = 0;
     exp = 0;
+  } else {
+    let regex = inRegex.value;
+    if (regex == "") {
+      alertContainerRegex.innerHTML = "Introduce una regex";
+    } else {
+      if (loader.hasAttribute("hidden")) {
+        loader.toggleAttribute("hidden");
+      }
+      alertContainerRegex.innerHTML = "";
+      sendMsgThroughWebSocket(regex);
+      inRegex.value = "";
+      cont++;
+    }
   }
 });
 
@@ -95,8 +86,24 @@ function connectToWebSocket(config) {
   socket = new WebSocket("ws://" + config.ip + ":" + config.port);
 
   socket.onmessage = (event) => {
-    loader.classList.toggle("display-none");
-    taRegex.value += `${JSON.parse(event.data).result}\n\n`;
+    if (cont < 5) {
+      loader.toggleAttribute("hidden");
+      taRegex.value += `${JSON.parse(event.data).result}\n\n`;
+    } else {
+      btRegex.classList.toggle("display-none");
+      alertContainerRegex.innerHTML =
+        'Gastaste tus consultas, vuelve a <u id="linkLogin">loguearte</u>';
+      inRegex.value = "";
+      cont = 0;
+      exp = 0;
+      document.getElementById("linkLogin").addEventListener("click", () => {
+        loginContainer.classList.toggle("display-none");
+        regexContainer.classList.toggle("display-none");
+        alertContainerRegex.innerHTML = "";
+        taRegex.value = "";
+        btRegex.classList.toggle("display-none");
+      });
+    }
   };
 
   socket.onclose = () => {
