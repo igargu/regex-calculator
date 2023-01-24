@@ -26,20 +26,4 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.post("/regex", async (req, res) => {
-  const auth_token = req.headers.authorization;
-  if (!auth_token) {
-    res.status(401).send("Unauthorized request");
-  }
-  const accessToken = auth_token.split(" ")[1];
-  jwt.verify(accessToken, process.env.PRIVATE_KEY, (err, payload) => {
-    if (err) {
-      res.status(401).send("Unauthorized request");
-    }
-    res.status(200).send({
-      message: parser.parse(`Evaluar[${req.headers.regex}];`),
-    });
-  });
-});
-
 module.exports = router;

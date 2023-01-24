@@ -17,10 +17,6 @@ let token = "";
 let cont = 0;
 let exp = 0;
 
-let socket = null;
-let state = false;
-let handler = null;
-
 btLogin.addEventListener("click", () => {
   let user = inUser.value;
   let pass = inPass.value;
@@ -40,7 +36,12 @@ btLogin.addEventListener("click", () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.data != null) {
-          // Abrir conexión con el websocket
+          token = data.data;
+          loginContainer.classList.toggle("display-none");
+          regexContainer.classList.toggle("display-none");
+          inUser.value = "";
+          inPass.value = "";
+          exp = Date.now();
           connectToWebSocket({
             ip: "localhost",
             port: "3000",
@@ -70,20 +71,7 @@ btRegex.addEventListener("click", () => {
         taRegex.value = "";
       } else {
         alertContainerRegex.innerHTML = "";
-        const url = "http://localhost:3000/regex";
-        const options = {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token.token}`,
-            regex: regex,
-          },
-        };
-        fetch(url, options)
-          .then((res) => res.json())
-          .then((json) => {
-            taRegex.value = json.message;
-          })
-          .catch((err) => console.error("error:" + err));
+        sendMsgThroughWebSocket(regex);
         cont++;
       }
     }
@@ -102,15 +90,8 @@ btRegex.addEventListener("click", () => {
 function connectToWebSocket(config) {
   this.socket = new WebSocket("ws://" + config.ip + ":" + config.port);
 
-  token = data.data;
-  loginContainer.classList.toggle("display-none");
-  regexContainer.classList.toggle("display-none");
-  inUser.value = "";
-  inPass.value = "";
-  exp = Date.now();
-
   this.socket.onmessage = (event) => {
-    this.handler.newMsg(JSON.parse(event.data));
+    taRegex.value = JSON.parse(event.data).result;
   };
 
   this.socket.onclose = () => {
@@ -123,8 +104,10 @@ function connectToWebSocket(config) {
 }
 
 function sendMsgThroughWebSocket(content) {
-  const msg = {
-    content: content,
-  };
-  this.socket.send(JSON.stringify(msg));
+  this.socket.send(
+    JSON.stringify({
+      token: token,
+      content: content,
+    })
+  );
 }
