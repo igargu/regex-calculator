@@ -99,7 +99,7 @@ body {
 .loader {
   width: 48px;
   height: 48px;
-  border: 3px solid #fff;
+  border: 3px solid #111111;
   border-radius: 50%;
   display: inline-block;
   position: relative;

@@ -1,5 +1,3 @@
-const { connect } = require("mongoose");
-
 let loginContainer = document.getElementById("loginContainer");
 let inUser = document.getElementById("inUser");
 let inPass = document.getElementById("inPass");
@@ -13,9 +11,14 @@ let taRegex = document.getElementById("taRegex");
 let alertContainerLogin = document.getElementById("alertContainerLogin");
 let alertContainerRegex = document.getElementById("alertContainerRegex");
 
+let loader = document.getElementById("loader");
+
 let token = "";
 let cont = 0;
 let exp = 0;
+
+let socket = null;
+let state = false;
 
 btLogin.addEventListener("click", () => {
   let user = inUser.value;
@@ -44,7 +47,7 @@ btLogin.addEventListener("click", () => {
           exp = Date.now();
           connectToWebSocket({
             ip: "localhost",
-            port: "3000",
+            port: "3030",
           });
         } else {
           alertContainerLogin.innerHTML = "Usuario o contraseña no válidos";
@@ -68,43 +71,45 @@ btRegex.addEventListener("click", () => {
       let regex = inRegex.value;
       if (regex == "") {
         alertContainerRegex.innerHTML = "Introduce una regex";
-        taRegex.value = "";
       } else {
         alertContainerRegex.innerHTML = "";
         sendMsgThroughWebSocket(regex);
+        inRegex.value = "";
         cont++;
       }
     }
   } else {
-    alertContainerLogin.innerHTML =
+    btRegex.classList.toggle("display-none");
+    alertContainerRegex.innerHTML =
       "Gastaste tus consultas, vuelve a loguearte";
-    loginContainer.classList.toggle("display-none");
-    regexContainer.classList.toggle("display-none");
+    //loginContainer.classList.toggle("display-none");
+    //regexContainer.classList.toggle("display-none");
     inRegex.value = "";
-    taRegex.value = "";
+    //taRegex.value = "";
     cont = 0;
     exp = 0;
   }
 });
 
 function connectToWebSocket(config) {
-  this.socket = new WebSocket("ws://" + config.ip + ":" + config.port);
+  socket = new WebSocket("ws://" + config.ip + ":" + config.port);
 
-  this.socket.onmessage = (event) => {
-    taRegex.value = JSON.parse(event.data).result;
+  socket.onmessage = (event) => {
+    loader.classList.toggle("display-none");
+    taRegex.value += `${JSON.parse(event.data).result}\n\n`;
   };
 
-  this.socket.onclose = () => {
-    this.state = false;
+  socket.onclose = () => {
+    state = false;
   };
 
-  this.socket.onerror = () => {
-    this.state = false;
+  socket.onerror = () => {
+    state = false;
   };
 }
 
 function sendMsgThroughWebSocket(content) {
-  this.socket.send(
+  socket.send(
     JSON.stringify({
       token: token,
       content: content,
