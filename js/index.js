@@ -29,16 +29,18 @@ const MAX_LATI = 37.161525;
 const proxy = new Proxy(
   {
     login: accesGranted,
-    regex: function (regex) {
-      sendMsgThroughWebSocket(regex);
-    },
+    regex: sendMsgThroughWebSocket,
   },
   {
-    get: function (target, prop, args) {
+    get: function (target, prop) {
       if (prop === "login") {
         target.login();
-      } else if (prop === "regex") {
-        target.regex(args[0]);
+      }
+    },
+    set: function (target, prop, value) {
+      if (prop === "regex") {
+        target.regex(value);
+        return true;
       }
     },
   }
@@ -165,7 +167,7 @@ btRegex.addEventListener("click", () => {
         loader.toggleAttribute("hidden");
       }
       alertContainerRegex.innerHTML = "";
-      proxy.regex.apply(regex);
+      proxy.regex = regex;
       inRegex.value = "";
       cont++;
     }
