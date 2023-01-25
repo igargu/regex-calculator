@@ -12,6 +12,7 @@ let alertContainerLogin = document.getElementById("alertContainerLogin");
 let alertContainerRegex = document.getElementById("alertContainerRegex");
 
 let loader = document.getElementById("spLoader");
+let loaderLogin = document.getElementById("spLoaderLogin");
 
 let token = "";
 let cont = 0;
@@ -20,42 +21,52 @@ let exp = 0;
 let socket = null;
 let state = false;
 
+const MAX_LONG = -3.590768;
+const MIN_LONG = -3.592621;
+const MIN_LATI = 37.160317;
+const MAX_LATI = 37.161525;
+
 btLogin.addEventListener("click", () => {
-  let user = inUser.value;
-  let pass = inPass.value;
-  if (user == "" || pass == "") {
+  alertContainerLogin.innerHTML = "";
+  if (inUser.value == "" || inPass.value == "") {
     alertContainerLogin.innerHTML = "Introduce tu usuario y contraseña";
   } else {
-    alertContainerLogin.innerHTML = "";
-    const url = "http://localhost:3000/login";
-    const options = {
-      method: "POST",
-      headers: {
-        user: user,
-        pass: pass,
-      },
-    };
-    fetch(url, options)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.data != null) {
-          token = data.data;
-          loginContainer.classList.toggle("display-none");
-          regexContainer.classList.toggle("display-none");
-          inUser.value = "";
-          inPass.value = "";
-          exp = Date.now();
-          connectToWebSocket({
-            ip: "localhost",
-            port: "3030",
-          });
-        } else {
-          alertContainerLogin.innerHTML = "Usuario o contraseña no válidos";
-        }
-      })
-      .catch((err) => console.error("error:" + err));
+    checkPosition();
   }
 });
+
+function accesGranted() {
+  let user = inUser.value;
+  let pass = inPass.value;
+  const url = "http://localhost:3000/login";
+  const options = {
+    method: "POST",
+    headers: {
+      user: user,
+      pass: pass,
+    },
+  };
+  fetch(url, options)
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.data != null) {
+        token = data.data;
+        loginContainer.classList.toggle("display-none");
+        regexContainer.classList.toggle("display-none");
+        inUser.value = "";
+        inPass.value = "";
+        taRegex.value = "";
+        exp = Date.now();
+        connectToWebSocket({
+          ip: "localhost",
+          port: "3030",
+        });
+      } else {
+        alertContainerLogin.innerHTML = "Usuario o contraseña no válidos";
+      }
+    })
+    .catch((err) => console.error("error:" + err));
+}
 
 btRegex.addEventListener("click", () => {
   if (Date.now() >= exp + 600000) {
@@ -86,10 +97,9 @@ function connectToWebSocket(config) {
   socket = new WebSocket("ws://" + config.ip + ":" + config.port);
 
   socket.onmessage = (event) => {
-    if (cont < 5) {
-      loader.toggleAttribute("hidden");
-      taRegex.value += `${JSON.parse(event.data).result}\n\n`;
-    } else {
+    loader.toggleAttribute("hidden");
+    taRegex.value += `${JSON.parse(event.data).result}\n\n`;
+    if (cont == 5) {
       btRegex.classList.toggle("display-none");
       alertContainerRegex.innerHTML =
         'Gastaste tus consultas, vuelve a <u id="linkLogin">loguearte</u>';
@@ -121,5 +131,34 @@ function sendMsgThroughWebSocket(content) {
       token: token,
       content: content,
     })
+  );
+}
+
+function checkPosition() {
+  loaderLogin.toggleAttribute("hidden");
+  navigator.geolocation.getCurrentPosition(
+    function (pos) {
+      loaderLogin.toggleAttribute("hidden");
+      if (
+        MIN_LATI < pos.coords.latitude < MAX_LATI &&
+        MIN_LONG > pos.coords.longitude > MAX_LONG
+      ) {
+        accesGranted();
+      } else {
+        alertContainerLogin.innerHTML = "Tu ubicación no está permitida";
+      }
+    },
+    function (err) {
+      loaderLogin.toggleAttribute("hidden");
+      console.log(`Error ${err.code} : ${err.message}`);
+      if (err.code == 1) {
+        alertContainerLogin.innerHTML = "Acceso a ubicación denegado";
+      }
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 30000,
+      maximumAge: 0,
+    }
   );
 }
