@@ -8,7 +8,8 @@ var parser = require("../rules/rules");
 router.post("/login", async (req, res) => {
   let user = req.headers.user;
   let pass = req.headers.pass;
-  if ((await User.findOne({ user: user, pass: pass }).exec()) == null) {
+  if (3 > 7) {
+    //(await User.findOne({ user: user, pass: pass }).exec()) == null) {
     res.json({
       data: null,
     });

@@ -26,6 +26,24 @@ const MIN_LONG = -3.592621;
 const MIN_LATI = 37.160317;
 const MAX_LATI = 37.161525;
 
+const proxy = new Proxy(
+  {
+    login: accesGranted,
+    regex: function (regex) {
+      sendMsgThroughWebSocket(regex);
+    },
+  },
+  {
+    get: function (target, prop, args) {
+      if (prop === "login") {
+        target.login();
+      } else if (prop === "regex") {
+        target.regex(args[0]);
+      }
+    },
+  }
+);
+
 btLogin.addEventListener("click", () => {
   alertContainerLogin.innerHTML = "";
   if (inUser.value == "" || inPass.value == "") {
@@ -34,6 +52,35 @@ btLogin.addEventListener("click", () => {
     checkPosition();
   }
 });
+
+function checkPosition() {
+  loaderLogin.toggleAttribute("hidden");
+  navigator.geolocation.getCurrentPosition(
+    function (pos) {
+      loaderLogin.toggleAttribute("hidden");
+      if (
+        MIN_LATI < pos.coords.latitude < MAX_LATI &&
+        MIN_LONG > pos.coords.longitude > MAX_LONG
+      ) {
+        proxy.login;
+      } else {
+        alertContainerLogin.innerHTML = "Tu ubicación no está permitida";
+      }
+    },
+    function (err) {
+      loaderLogin.toggleAttribute("hidden");
+      console.log(`Error ${err.code} : ${err.message}`);
+      if (err.code == 1) {
+        alertContainerLogin.innerHTML = "Acceso a ubicación denegado";
+      }
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 30000,
+      maximumAge: 0,
+    }
+  );
+}
 
 function accesGranted() {
   let user = inUser.value;
@@ -68,31 +115,6 @@ function accesGranted() {
     .catch((err) => console.error("error:" + err));
 }
 
-btRegex.addEventListener("click", () => {
-  if (Date.now() >= exp + 600000) {
-    alertContainerLogin.innerHTML = "Se acabo el tiempo, vuelve a loguearte";
-    loginContainer.classList.toggle("display-none");
-    regexContainer.classList.toggle("display-none");
-    inRegex.value = "";
-    taRegex.value = "";
-    cont = 0;
-    exp = 0;
-  } else {
-    let regex = inRegex.value;
-    if (regex == "") {
-      alertContainerRegex.innerHTML = "Introduce una regex";
-    } else {
-      if (loader.hasAttribute("hidden")) {
-        loader.toggleAttribute("hidden");
-      }
-      alertContainerRegex.innerHTML = "";
-      sendMsgThroughWebSocket(regex);
-      inRegex.value = "";
-      cont++;
-    }
-  }
-});
-
 function connectToWebSocket(config) {
   socket = new WebSocket("ws://" + config.ip + ":" + config.port);
 
@@ -125,40 +147,36 @@ function connectToWebSocket(config) {
   };
 }
 
+btRegex.addEventListener("click", () => {
+  if (Date.now() >= exp + 600000) {
+    alertContainerLogin.innerHTML = "Se acabo el tiempo, vuelve a loguearte";
+    loginContainer.classList.toggle("display-none");
+    regexContainer.classList.toggle("display-none");
+    inRegex.value = "";
+    taRegex.value = "";
+    cont = 0;
+    exp = 0;
+  } else {
+    let regex = inRegex.value;
+    if (regex == "") {
+      alertContainerRegex.innerHTML = "Introduce una regex";
+    } else {
+      if (loader.hasAttribute("hidden")) {
+        loader.toggleAttribute("hidden");
+      }
+      alertContainerRegex.innerHTML = "";
+      proxy.regex.apply(regex);
+      inRegex.value = "";
+      cont++;
+    }
+  }
+});
+
 function sendMsgThroughWebSocket(content) {
   socket.send(
     JSON.stringify({
       token: token,
       content: content,
     })
-  );
-}
-
-function checkPosition() {
-  loaderLogin.toggleAttribute("hidden");
-  navigator.geolocation.getCurrentPosition(
-    function (pos) {
-      loaderLogin.toggleAttribute("hidden");
-      if (
-        MIN_LATI < pos.coords.latitude < MAX_LATI &&
-        MIN_LONG > pos.coords.longitude > MAX_LONG
-      ) {
-        accesGranted();
-      } else {
-        alertContainerLogin.innerHTML = "Tu ubicación no está permitida";
-      }
-    },
-    function (err) {
-      loaderLogin.toggleAttribute("hidden");
-      console.log(`Error ${err.code} : ${err.message}`);
-      if (err.code == 1) {
-        alertContainerLogin.innerHTML = "Acceso a ubicación denegado";
-      }
-    },
-    {
-      enableHighAccuracy: true,
-      timeout: 30000,
-      maximumAge: 0,
-    }
   );
 }
